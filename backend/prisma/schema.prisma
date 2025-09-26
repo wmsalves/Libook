@@ -28,7 +28,7 @@ enum Role {
 
 model Book {
   id              String   @id @default(cuid())
-  title           String
+  title           String   @unique
   synopsis        String?  @db.Text
   isbn            String?  @unique
   publicationYear Int?
@@ -36,4 +36,39 @@ model Book {
   coverUrl        String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  authors    AuthorOnBook[]
+  categories CategoryOnBook[]
+}
+
+model Author {
+  id    String         @id @default(cuid())
+  name  String         @unique
+  books AuthorOnBook[]
+}
+
+// Junction table for the many-to-many relationship
+model AuthorOnBook {
+  book     Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId   String
+  author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  @@id([bookId, authorId])
+}
+
+model Category {
+  id    String           @id @default(cuid())
+  name  String           @unique
+  books CategoryOnBook[]
+}
+
+// Junction table for the many-to-many relationship
+model CategoryOnBook {
+  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId     String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+
+  @@id([bookId, categoryId])
 }
