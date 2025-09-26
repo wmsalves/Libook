@@ -1,19 +1,19 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 import { apiClient } from "../lib/axios";
-
-// Definindo os tipos
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "USER" | "ADMIN";
-}
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "USER" | "ADMIN";
 }
 
 interface AuthProviderProps {
@@ -25,7 +25,33 @@ export const AuthContext = createContext({} as AuthContextType);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
   const isAuthenticated = !!user;
+
+  // <<-- useEffect -->>
+  useEffect(() => {
+    async function loadUserFromToken() {
+      const token = localStorage.getItem("libook.token");
+
+      if (token) {
+        try {
+          // Define o token no cabeçalho do Axios para a verificação
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${token}`;
+          // Busca o perfil para validar o token
+          const profileResponse = await apiClient.get("/auth/profile");
+          setUser(profileResponse.data);
+        } catch (error) {
+          console.error("Sessão inválida, limpando token:", error);
+          // Se o token for inválido, limpa o storage
+          localStorage.removeItem("libook.token");
+        }
+      }
+    }
+
+    loadUserFromToken();
+  }, []); // O array vazio garante que isso rode apenas uma vez
 
   async function login(email: string, password: string) {
     try {
@@ -36,26 +62,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const { access_token } = response.data;
 
-      // Armazena o token no cabeçalho de todas as futuras requisições do axios
       apiClient.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${access_token}`;
 
-      // Busca os dados do perfil do usuário com o novo token
       const profileResponse = await apiClient.get("/auth/profile");
       setUser(profileResponse.data);
 
-      // Armazena o token no localStorage para persistir o login
       localStorage.setItem("libook.token", access_token);
     } catch (error) {
       console.error("Falha no login:", error);
-      // Lança o erro para que o componente de login possa tratá-lo
       throw error;
     }
   }
 
+  // <<-- FUNÇÃO DE LOGOUT -->>
   function logout() {
-    // Implementação futura
+    setUser(null);
+    localStorage.removeItem("libook.token");
+    // Remove o cabeçalho de autorização do Axios
+    delete apiClient.defaults.headers.common["Authorization"];
+    navigate("/login"); // Redireciona o usuário para a página de login
   }
 
   return (
