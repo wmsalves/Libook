@@ -1,7 +1,18 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import express from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -12,10 +23,15 @@ export class AuthController {
     return this.authService.register(registerUserDto);
   }
 
-  // ENDPOINT DE LOGIN
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Retorna 200 OK
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
+  getProfile(@Req() req: express.Request) {
+    return req.user;
   }
 }
