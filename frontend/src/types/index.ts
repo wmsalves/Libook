@@ -16,3 +16,13 @@ export interface Review {
     name: string;
   };
 }
+
+export const ReadingStatus = {
+  WANT_TO_READ: "WANT_TO_READ",
+  READING: "READING",
+  READ: "READ",
+} as const;
+
+export type ReadingStatus = (typeof ReadingStatus)[keyof typeof ReadingStatus];
+
+export type UserStatuses = Record<string, ReadingStatus>;

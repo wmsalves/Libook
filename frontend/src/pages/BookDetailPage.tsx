@@ -2,9 +2,12 @@ import { useParams, Link } from "react-router-dom";
 import { useBook } from "../services/books";
 import { ReviewForm } from "../components/ReviewForm";
 import { ReviewsList } from "../components/ReviewsList";
+import { BookStatusSelector } from "../components/BookStatusSelector"; // Importa o seletor
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
+  // O operador '!' garante ao TypeScript que 'id' não será undefined aqui,
+  // pois a rota só é acionada se ele existir.
   const bookId = id!;
   const { data: book, isLoading, isError } = useBook(bookId);
 
@@ -68,7 +71,13 @@ export function BookDetailPage() {
             <p className="mt-4 text-sm text-gray-500">
               <strong>Categorias:</strong> {categoryNames}
             </p>
-            <div className="mt-6">
+
+            {/* --- ADICIONA O SELETOR DE STATUS AQUI --- */}
+            <div className="mt-6 max-w-xs">
+              <BookStatusSelector bookId={bookId} />
+            </div>
+
+            <div className="mt-8">
               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">
                 Sinopse
               </h2>

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/axios";
-import type { Book, Review } from "../types/index";
+import type { Book, ReadingStatus, Review, UserStatuses } from "../types/index";
 
 interface CreateReviewPayload {
   rating: number;
@@ -70,6 +70,46 @@ export function useCreateReview(bookId: string) {
       // Invalida e busca novamente a lista de resenhas após o sucesso
       // para mostrar a nova resenha imediatamente.
       queryClient.invalidateQueries({ queryKey: ["reviews", bookId] });
+    },
+  });
+}
+
+// Função que busca os status de leitura do usuário
+async function fetchUserStatuses(): Promise<UserStatuses> {
+  const { data } = await apiClient.get("/reading-lists/statuses");
+  return data;
+}
+
+// Hook que busca os status
+export function useUserStatuses() {
+  return useQuery({
+    queryKey: ["user-statuses"],
+    queryFn: fetchUserStatuses,
+  });
+}
+
+// Função que define o status de um livro
+async function setBookStatus(
+  bookId: string,
+  status: ReadingStatus
+): Promise<void> {
+  await apiClient.put(`/reading-lists/books/${bookId}/status`, { status });
+}
+
+// Hook de mutação para definir o status
+export function useSetBookStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      bookId,
+      status,
+    }: {
+      bookId: string;
+      status: ReadingStatus;
+    }) => setBookStatus(bookId, status),
+    onSuccess: () => {
+      // Invalida a query de status para buscar os dados atualizados
+      queryClient.invalidateQueries({ queryKey: ["user-statuses"] });
     },
   });
 }

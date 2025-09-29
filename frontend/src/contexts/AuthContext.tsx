@@ -1,12 +1,15 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 import { apiClient } from "../lib/axios";
 import { useNavigate } from "react-router-dom";
+import { useUserStatuses } from "../services/books";
+import type { UserStatuses } from "../types";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  userStatuses: UserStatuses;
 }
 
 interface User {
@@ -28,6 +31,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const navigate = useNavigate();
   const isAuthenticated = !!user;
 
+  // <<-- BUSCA OS STATUS QUANDO O USUÁRIO ESTÁ AUTENTICADO -->>
+  const { data: userStatuses = {} } = useUserStatuses();
   // <<-- useEffect -->>
   useEffect(() => {
     async function loadUserFromToken() {
@@ -86,7 +91,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, logout, userStatuses }}
+    >
       {children}
     </AuthContext.Provider>
   );
