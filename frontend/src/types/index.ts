@@ -6,3 +6,13 @@ export interface Book {
   authors: { author: { name: string } }[];
   categories: { category: { name: string } }[];
 }
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  user: {
+    name: string;
+  };
+}

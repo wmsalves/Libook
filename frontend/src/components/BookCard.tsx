@@ -9,27 +9,25 @@ export function BookCard({ book }: BookCardProps) {
   const authorNames = book.authors.map((a) => a.author.name).join(", ");
 
   return (
+    // Envolve todo o card com o Link, apontando para /books/id-do-livro
     <Link
       to={`/books/${book.id}`}
-      className="group block overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+      style={{ textDecoration: "none", color: "inherit" }}
     >
-      <div className="relative">
+      <div
+        style={{
+          border: "1px solid #ccc",
+          padding: "16px",
+          borderRadius: "8px",
+        }}
+      >
         <img
-          src={book.coverUrl || "https://via.placeholder.com/400x580"}
+          src={book.coverUrl || "https://via.placeholder.com/150x220"}
           alt={`Capa do livro ${book.title}`}
-          className="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105"
+          style={{ width: "100%", height: "220px", objectFit: "cover" }}
         />
-      </div>
-      <div className="p-4 bg-white">
-        <h3
-          className="text-lg font-bold text-gray-800 truncate"
-          title={book.title}
-        >
-          {book.title}
-        </h3>
-        <p className="mt-1 text-sm text-gray-600 truncate" title={authorNames}>
-          {authorNames}
-        </p>
+        <h3 style={{ marginTop: "12px", fontSize: "1.1rem" }}>{book.title}</h3>
+        <p style={{ color: "#555", fontSize: "0.9rem" }}>{authorNames}</p>
       </div>
     </Link>
   );
