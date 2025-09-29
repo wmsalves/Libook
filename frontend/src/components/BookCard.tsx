@@ -1,34 +1,35 @@
-import type { Book } from "../types";
 import { Link } from "react-router-dom";
+import type { Book } from "../types";
 
 interface BookCardProps {
   book: Book;
 }
 
 export function BookCard({ book }: BookCardProps) {
-  // Extrai os nomes dos autores para uma string
   const authorNames = book.authors.map((a) => a.author.name).join(", ");
 
   return (
-    // Envolve todo o card com o Link, apontando para /books/id-do-livro
     <Link
       to={`/books/${book.id}`}
-      style={{ textDecoration: "none", color: "inherit" }}
+      className="group block overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
     >
-      <div
-        style={{
-          border: "1px solid #ccc",
-          padding: "16px",
-          borderRadius: "8px",
-        }}
-      >
+      <div className="relative">
         <img
-          src={book.coverUrl || "https://via.placeholder.com/150x220"}
+          src={book.coverUrl || "https://via.placeholder.com/400x580"}
           alt={`Capa do livro ${book.title}`}
-          style={{ width: "100%", height: "220px", objectFit: "cover" }}
+          className="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <h3 style={{ marginTop: "12px", fontSize: "1.1rem" }}>{book.title}</h3>
-        <p style={{ color: "#555", fontSize: "0.9rem" }}>{authorNames}</p>
+      </div>
+      <div className="p-4 bg-white">
+        <h3
+          className="text-lg font-bold text-gray-800 truncate"
+          title={book.title}
+        >
+          {book.title}
+        </h3>
+        <p className="mt-1 text-sm text-gray-600 truncate" title={authorNames}>
+          {authorNames}
+        </p>
       </div>
     </Link>
   );
