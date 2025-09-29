@@ -52,4 +52,38 @@ export class ReadingListsService {
       {} as Record<string, string>,
     );
   }
+  async findMyLibrary(userId: string) {
+    return this.prisma.book.findMany({
+      where: {
+        // Encontra todos os livros onde existe uma entrada na ReadingList
+        // para o usuário atual.
+        ReadingList: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      include: {
+        // Inclui a informação do status de leitura junto com cada livro
+        ReadingList: {
+          where: {
+            userId: userId,
+          },
+          select: {
+            status: true,
+          },
+        },
+        // Também inclui autores para exibição no card
+        authors: {
+          select: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

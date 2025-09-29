@@ -18,6 +18,15 @@ import { SetStatusDto } from './dto/set-status.dto';
 export class ReadingListsController {
   constructor(private readonly readingListsService: ReadingListsService) {}
 
+  @Get('my-library')
+  findMyLibrary(@Req() req: Request) {
+    const user = req.user as { id: string } | undefined;
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
+    }
+    return this.readingListsService.findMyLibrary(user.id);
+  }
+
   @Get('statuses')
   findMyStatuses(@Req() req: Request) {
     const user = req.user as { id: string } | undefined;
