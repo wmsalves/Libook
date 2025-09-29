@@ -15,3 +15,18 @@ export function useBooks() {
     queryFn: fetchBooks,
   });
 }
+
+// Função que busca um livro por ID
+async function fetchBookById(id: string): Promise<Book> {
+  const { data } = await apiClient.get(`/books/${id}`);
+  return data;
+}
+
+export function useBook(id: string) {
+  return useQuery({
+    // A chave de cache agora inclui o ID para ser única por livro
+    queryKey: ["book", id],
+    queryFn: () => fetchBookById(id),
+    enabled: !!id, // A query só será executada se o ID existir
+  });
+}
