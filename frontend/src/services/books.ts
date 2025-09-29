@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/axios";
-import type { Book, ReadingStatus, Review, UserStatuses } from "../types/index";
+import type {
+  Book,
+  LibraryBook,
+  ReadingStatus,
+  Review,
+  UserStatuses,
+} from "../types/index";
 
 interface CreateReviewPayload {
   rating: number;
@@ -111,5 +117,19 @@ export function useSetBookStatus() {
       // Invalida a query de status para buscar os dados atualizados
       queryClient.invalidateQueries({ queryKey: ["user-statuses"] });
     },
+  });
+}
+
+// Função que busca os livros da biblioteca do usuário
+async function fetchMyLibrary(): Promise<LibraryBook[]> {
+  const { data } = await apiClient.get("/reading-lists/my-library");
+  return data;
+}
+
+// Hook que usa React Query para buscar a biblioteca
+export function useMyLibrary() {
+  return useQuery({
+    queryKey: ["my-library"],
+    queryFn: fetchMyLibrary,
   });
 }

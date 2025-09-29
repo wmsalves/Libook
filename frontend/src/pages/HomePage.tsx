@@ -1,6 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 import { useBooks } from "../services/books";
 import { BookCard } from "../components/BookCard";
+import { Link } from "react-router-dom"; // Importa o Link
 
 export function HomePage() {
   const { user, logout } = useAuth();
@@ -32,8 +33,20 @@ export function HomePage() {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-indigo-600">Libook</h1>
+          {/* O logo agora é um link para a página inicial */}
+          <Link to="/" className="text-xl font-bold text-indigo-600">
+            Libook
+          </Link>
+
           <div className="flex items-center space-x-4">
+            {/* Novo link para a biblioteca pessoal */}
+            <Link
+              to="/my-library"
+              className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors"
+            >
+              Minha Biblioteca
+            </Link>
+
             <span className="text-gray-700 hidden sm:block">
               Olá, {user?.name}!
             </span>

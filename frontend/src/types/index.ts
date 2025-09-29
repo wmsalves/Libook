@@ -26,3 +26,9 @@ export const ReadingStatus = {
 export type ReadingStatus = (typeof ReadingStatus)[keyof typeof ReadingStatus];
 
 export type UserStatuses = Record<string, ReadingStatus>;
+
+export interface LibraryBook extends Book {
+  ReadingList: {
+    status: ReadingStatus;
+  }[];
+}
