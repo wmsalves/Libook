@@ -11,14 +11,21 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reviews   Review[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  name         String?
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reviews      Review[]
+  readingLists ReadingList[]
+}
+
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  READ
 }
 
 enum Role {
@@ -38,9 +45,10 @@ model Book {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  authors    AuthorOnBook[]
-  categories CategoryOnBook[]
-  reviews    Review[]
+  authors     AuthorOnBook[]
+  categories  CategoryOnBook[]
+  reviews     Review[]
+  ReadingList ReadingList[]
 }
 
 model Author {
@@ -81,6 +89,18 @@ model Review {
   comment   String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId String
+
+  @@unique([userId, bookId])
+}
+
+model ReadingList {
+  id     String        @id @default(cuid())
+  status ReadingStatus
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
