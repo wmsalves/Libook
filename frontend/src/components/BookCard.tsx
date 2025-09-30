@@ -1,19 +1,19 @@
 import { Link } from "react-router-dom";
 import type { Book } from "../types";
 import { BookStatusSelector } from "./BookStatusSelector";
+import { useAuth } from "../hooks/useAuth";
 
 interface BookCardProps {
   book: Book;
 }
 
 export function BookCard({ book }: BookCardProps) {
+  const { isAuthenticated } = useAuth();
   const authorNames = book.authors.map((a) => a.author.name).join(", ");
 
   return (
-    // Div principal que organiza o card e o seletor verticalmente
     <div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-xl">
-      {/* O Link agora cobre apenas a parte visual do livro */}
-      <Link to={`/books/${book.id}`} className="group block">
+      <Link to={`/books/${book.id}`} className="group block flex-grow">
         <div className="relative">
           <img
             src={book.coverUrl || "https://via.placeholder.com/400x580"}
@@ -37,10 +37,12 @@ export function BookCard({ book }: BookCardProps) {
         </div>
       </Link>
 
-      {/* Seletor de Status fica fora do Link, mas dentro do card */}
-      <div className="p-2 pt-0 mt-auto">
-        <BookStatusSelector bookId={book.id} />
-      </div>
+      {/* 3. Renderize o seletor de status APENAS se o usuário estiver autenticado */}
+      {isAuthenticated && (
+        <div className="p-4 pt-0">
+          <BookStatusSelector bookId={book.id} />
+        </div>
+      )}
     </div>
   );
 }

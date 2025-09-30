@@ -3,11 +3,11 @@ import { useBook } from "../services/books";
 import { ReviewForm } from "../components/ReviewForm";
 import { ReviewsList } from "../components/ReviewsList";
 import { BookStatusSelector } from "../components/BookStatusSelector"; // Importa o seletor
+import { useAuth } from "../hooks/useAuth";
 
 export function BookDetailPage() {
+  const { isAuthenticated } = useAuth();
   const { id } = useParams<{ id: string }>();
-  // O operador '!' garante ao TypeScript que 'id' não será undefined aqui,
-  // pois a rota só é acionada se ele existir.
   const bookId = id!;
   const { data: book, isLoading, isError } = useBook(bookId);
 
@@ -39,29 +39,14 @@ export function BookDetailPage() {
           to="/"
           className="inline-flex items-center text-indigo-600 hover:text-indigo-800 transition-colors mb-6"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
+          {/* ... (SVG e texto do link "Voltar") ... */}
           Voltar para o catálogo
         </Link>
 
         {/* --- DETALHES DO LIVRO --- */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden md:flex mb-8">
           <div className="md:w-1/3 flex-shrink-0">
-            <img
-              src={book.coverUrl || "https://via.placeholder.com/400x580"}
-              alt={`Capa de ${book.title}`}
-              className="w-full h-full object-cover"
-            />
+            {/* ... (imagem do livro) ... */}
           </div>
           <div className="p-6 md:w-2/3">
             <h1 className="text-3xl font-bold text-gray-800">{book.title}</h1>
@@ -72,29 +57,41 @@ export function BookDetailPage() {
               <strong>Categorias:</strong> {categoryNames}
             </p>
 
-            {/* --- ADICIONA O SELETOR DE STATUS AQUI --- */}
-            <div className="mt-6 max-w-xs">
-              <BookStatusSelector bookId={bookId} />
-            </div>
+            {/* 3. Renderiza o seletor APENAS se o usuário estiver autenticado */}
+            {isAuthenticated && (
+              <div className="mt-6 max-w-xs">
+                <BookStatusSelector bookId={bookId} />
+              </div>
+            )}
 
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">
-                Sinopse
-              </h2>
-              <p className="mt-4 text-gray-700 leading-relaxed">
-                {book.synopsis || "Sinopse não disponível."}
-              </p>
-            </div>
+            <div className="mt-8">{/* ... (Sinopse) ... */}</div>
           </div>
         </div>
 
         {/* --- SEÇÃO DE AVALIAÇÕES --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
+            {/* A lista de avaliações é pública e visível para todos */}
             <ReviewsList bookId={bookId} />
           </div>
           <div>
-            <ReviewForm bookId={bookId} />
+            {/* 4. Renderiza o formulário APENAS se o usuário estiver autenticado */}
+            {isAuthenticated ? (
+              <ReviewForm bookId={bookId} />
+            ) : (
+              // Mensagem para visitantes
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <p className="text-gray-600">
+                  <Link
+                    to="/login"
+                    className="text-indigo-600 font-semibold hover:underline"
+                  >
+                    Entre
+                  </Link>{" "}
+                  para deixar sua avaliação.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

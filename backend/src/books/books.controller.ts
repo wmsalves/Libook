@@ -1,9 +1,7 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('books')
-@UseGuards(AuthGuard('jwt'))
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 

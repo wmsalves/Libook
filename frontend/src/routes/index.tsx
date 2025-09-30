@@ -9,18 +9,17 @@ import { MainLayout } from "../components/layout/MainLayout";
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      {/* O MainLayout agora envolve TODAS as páginas para um visual consistente */}
+      <Route element={<MainLayout />}>
+        {/* Rotas Públicas */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/books/:id" element={<BookDetailPage />} />
 
-      {/* Todas as rotas protegidas agora usam o MainLayout */}
-      <Route path="/" element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
-          {" "}
-          {/* Rota de Layout Aninhada */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/books/:id" element={<BookDetailPage />} />
+        {/* Rotas Privadas aninhadas dentro do ProtectedRoute */}
+        <Route element={<ProtectedRoute />}>
           <Route path="/my-library" element={<MyLibraryPage />} />
-          {/* Rota de placeholder para o link 'Avaliações' */}
-          <Route path="/reviews" element={<div>Página de Avaliações</div>} />
+          {/* Todas as outras rotas que exigem login virão aqui */}
         </Route>
       </Route>
     </Routes>
