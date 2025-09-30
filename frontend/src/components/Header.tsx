@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
@@ -7,6 +8,7 @@ import { useAuth } from "./../hooks/useAuth";
 
 export function Header() {
   const { isAuthenticated, logout, user } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
@@ -59,17 +61,24 @@ export function Header() {
 
           {isAuthenticated ? (
             // Menu para usuário LOGADO
-            <div className="relative group">
-              <button className="text-brand-dark hover:text-brand-green transition-colors">
+            <div className="relative">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-brand-dark hover:text-brand-green transition-colors"
+              >
                 <span className="sr-only">Menu do usuário</span>
                 <UserCircleIcon className="h-7 w-7" />
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block ring-1 ring-black ring-opacity-5">
+
+              <div
+                className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 transition-opacity duration-200 ${
+                  isMenuOpen ? "opacity-100 block" : "opacity-0 hidden"
+                }`}
+              >
                 <p className="px-4 py-2 text-sm text-gray-700 font-medium">
                   Olá, {user?.name}
                 </p>
 
-                {/* Link para o Painel de Admin, visível apenas para admins */}
                 {user?.role === "ADMIN" && (
                   <Link
                     to="/admin/books"
