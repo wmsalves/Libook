@@ -29,6 +29,7 @@ export function AppRoutes() {
         <Route path="/admin" element={<AdminRoute />}>
           <Route path="books" element={<AdminBooksListPage />} />
           <Route path="books/new" element={<AdminBookFormPage />} />{" "}
+          <Route path="books/edit/:id" element={<AdminBookFormPage />} />{" "}
         </Route>
       </Route>
     </Routes>

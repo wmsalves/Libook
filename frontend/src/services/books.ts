@@ -1,21 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/axios";
-import type {
-  Author,
-  Book,
-  Category,
-  LibraryBook,
+import {
+  type Author,
+  type Book,
+  type Category,
+  type LibraryBook,
   ReadingStatus,
-  Review,
-  UserStatuses,
+  type Review,
+  type UserStatuses,
 } from "../types/index";
+
+// --- PAYLOADS E TIPOS ESPECÍFICOS DE SERVIÇO ---
 
 interface CreateReviewPayload {
   rating: number;
   comment?: string;
 }
 
-// Função que busca os livros na API
+interface CreateBookPayload {
+  title: string;
+  synopsis?: string;
+  publicationYear?: number;
+  pageCount?: number;
+  coverUrl?: string;
+  authorIds: string[];
+  categoryIds?: string[];
+}
+
+type UpdateBookPayload = Partial<CreateBookPayload>;
+
+// --- FUNÇÕES E HOOKS ---
+
 async function fetchBooks(sortBy: string): Promise<Book[]> {
   const { data } = await apiClient.get("/books", {
     params: { sortBy },
@@ -23,7 +38,6 @@ async function fetchBooks(sortBy: string): Promise<Book[]> {
   return data;
 }
 
-// Hook customizado que usa o React Query
 export function useBooks(sortBy: string) {
   return useQuery({
     queryKey: ["books", sortBy],
@@ -31,28 +45,25 @@ export function useBooks(sortBy: string) {
   });
 }
 
-// Função que busca um livro por ID
 async function fetchBookById(id: string): Promise<Book> {
   const { data } = await apiClient.get(`/books/${id}`);
   return data;
 }
 
-export function useBook(id: string) {
+export function useBook(id: string, options?: { enabled?: boolean }) {
   return useQuery({
-    // A chave de cache agora inclui o ID para ser única por livro
     queryKey: ["book", id],
     queryFn: () => fetchBookById(id),
-    enabled: !!id, // A query só será executada se o ID existir
+    // Usa a opção 'enabled' se fornecida, senão o padrão é verificar se o id existe
+    enabled: options?.enabled ?? !!id,
   });
 }
 
-// Função que busca as resenhas de um livro
 async function fetchReviewsByBookId(bookId: string): Promise<Review[]> {
   const { data } = await apiClient.get(`/books/${bookId}/reviews`);
   return data;
 }
 
-// Hook que busca as resenhas
 export function useReviews(bookId: string) {
   return useQuery({
     queryKey: ["reviews", bookId],
@@ -61,7 +72,6 @@ export function useReviews(bookId: string) {
   });
 }
 
-// Função que cria uma nova resenha
 async function createReview(
   bookId: string,
   payload: CreateReviewPayload
@@ -70,27 +80,21 @@ async function createReview(
   return data;
 }
 
-// Hook de "mutação" para criar uma resenha
 export function useCreateReview(bookId: string) {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: CreateReviewPayload) => createReview(bookId, payload),
     onSuccess: () => {
-      // Invalida e busca novamente a lista de resenhas após o sucesso
-      // para mostrar a nova resenha imediatamente.
       queryClient.invalidateQueries({ queryKey: ["reviews", bookId] });
     },
   });
 }
 
-// Função que busca os status de leitura do usuário
 async function fetchUserStatuses(): Promise<UserStatuses> {
   const { data } = await apiClient.get("/reading-lists/statuses");
   return data;
 }
 
-// Hook que busca os status
 export function useUserStatuses() {
   return useQuery({
     queryKey: ["user-statuses"],
@@ -98,7 +102,6 @@ export function useUserStatuses() {
   });
 }
 
-// Função que define o status de um livro
 async function setBookStatus(
   bookId: string,
   status: ReadingStatus
@@ -106,7 +109,6 @@ async function setBookStatus(
   await apiClient.put(`/reading-lists/books/${bookId}/status`, { status });
 }
 
-// Hook de mutação para definir o status
 export function useSetBookStatus() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -118,19 +120,16 @@ export function useSetBookStatus() {
       status: ReadingStatus;
     }) => setBookStatus(bookId, status),
     onSuccess: () => {
-      // Invalida a query de status para buscar os dados atualizados
       queryClient.invalidateQueries({ queryKey: ["user-statuses"] });
     },
   });
 }
 
-// Função que busca os livros da biblioteca do usuário
 async function fetchMyLibrary(): Promise<LibraryBook[]> {
   const { data } = await apiClient.get("/reading-lists/my-library");
   return data;
 }
 
-// Hook que usa React Query para buscar a biblioteca
 export function useMyLibrary() {
   return useQuery({
     queryKey: ["my-library"],
@@ -138,7 +137,6 @@ export function useMyLibrary() {
   });
 }
 
-// --- HOOKS PARA AUTORES E CATEGORIAS ---
 async function fetchAuthors(): Promise<Author[]> {
   const { data } = await apiClient.get("/authors");
   return data;
@@ -157,18 +155,6 @@ export function useCategories() {
   return useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
 }
 
-// --- HOOK PARA CRIAR LIVROS ---
-// O DTO precisa corresponder ao do backend
-interface CreateBookPayload {
-  title: string;
-  synopsis?: string;
-  publicationYear?: number;
-  pageCount?: number;
-  coverUrl?: string;
-  authorIds: string[];
-  categoryIds?: string[];
-}
-
 async function createBook(payload: CreateBookPayload): Promise<Book> {
   const { data } = await apiClient.post("/books", payload);
   return data;
@@ -179,8 +165,29 @@ export function useCreateBook() {
   return useMutation({
     mutationFn: createBook,
     onSuccess: () => {
-      // Invalida a lista de livros para que ela seja atualizada na próxima vez que for vista
       queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+}
+
+async function updateBook({
+  bookId,
+  payload,
+}: {
+  bookId: string;
+  payload: UpdateBookPayload;
+}): Promise<Book> {
+  const { data } = await apiClient.patch(`/books/${bookId}`, payload);
+  return data;
+}
+
+export function useUpdateBook() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateBook,
+    onSuccess: (updatedBook) => {
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+      queryClient.setQueryData(["book", updatedBook.id], updatedBook);
     },
   });
 }

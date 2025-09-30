@@ -3,8 +3,10 @@ export interface Book {
   title: string;
   synopsis: string | null;
   coverUrl: string | null;
-  authors: { author: { name: string } }[];
-  categories: { category: { name: string } }[];
+  publicationYear: number | null;
+  pageCount: number | null;
+  authors: { author: { id: string; name: string } }[];
+  categories: { category: { id: string; name: string } }[];
 }
 
 export interface Review {

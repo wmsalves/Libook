@@ -1,14 +1,20 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuthors, useCategories, useCreateBook } from "../../services/books";
-import { useNavigate } from "react-router-dom";
+import {
+  useAuthors,
+  useCategories,
+  useCreateBook,
+  useUpdateBook,
+  useBook,
+} from "../../services/books";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-// 1. CORREÇÃO NO SCHEMA DO ZOD
+// Schema de validação com Zod para os dados do formulário
 const bookFormSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   synopsis: z.string().optional(),
-  // Aceita string ou number e transforma para number ou undefined
   publicationYear: z
     .union([z.string(), z.number()])
     .optional()
@@ -32,31 +38,64 @@ const bookFormSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
 });
 
+// Tipos inferidos do schema para entrada (antes da transformação) e saída (depois da transformação)
 type BookFormInput = z.input<typeof bookFormSchema>;
 type BookFormData = z.output<typeof bookFormSchema>;
 
 export function AdminBookFormPage() {
+  const { id: bookId } = useParams<{ id: string }>();
+  const isEditMode = !!bookId;
+
   const navigate = useNavigate();
   const { data: authors = [] } = useAuthors();
   const { data: categories = [] } = useCategories();
-  const { mutate: createBook, isPending } = useCreateBook();
+  const { mutate: createBook, isPending: isCreating } = useCreateBook();
+  const { mutate: updateBook, isPending: isUpdating } = useUpdateBook();
+  const { data: bookData } = useBook(bookId!, { enabled: isEditMode });
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<BookFormInput>({
     resolver: zodResolver(bookFormSchema),
   });
 
-  function handleCreateBook(data: BookFormData) {
-    createBook(data, {
-      onSuccess: () => {
-        navigate("/admin/books");
-      },
-    });
-  }
+  // Efeito que preenche o formulário com os dados do livro no modo de edição
+  useEffect(() => {
+    if (bookData) {
+      // Prepara os dados da API para o formulário, convertendo null para '' ou undefined
+      const formData = {
+        ...bookData,
+        synopsis: bookData.synopsis ?? "",
+        coverUrl: bookData.coverUrl ?? "",
+        publicationYear: bookData.publicationYear ?? undefined,
+        pageCount: bookData.pageCount ?? undefined,
+        authorIds: bookData.authors.map((a) => a.author.id),
+        categoryIds: bookData.categories.map((c) => c.category.id),
+      };
+      reset(formData);
+    }
+  }, [bookData, reset]);
 
+  // Função de submissão unificada que lida com criação e atualização
+  const onSubmit: SubmitHandler<BookFormData> = (data) => {
+    if (isEditMode) {
+      updateBook(
+        { bookId: bookId!, payload: data },
+        {
+          onSuccess: () => navigate("/admin/books"),
+        }
+      );
+    } else {
+      createBook(data, {
+        onSuccess: () => navigate("/admin/books"),
+      });
+    }
+  };
+
+  const isPending = isCreating || isUpdating;
   const inputClasses =
     "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500";
   const buttonClasses =
@@ -64,11 +103,11 @@ export function AdminBookFormPage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
-      <h1 className="text-2xl font-bold text-brand-dark mb-6">Novo Livro</h1>
+      <h1 className="text-2xl font-bold text-brand-dark mb-6">
+        {isEditMode ? "Editar Livro" : "Novo Livro"}
+      </h1>
       <form
-        onSubmit={handleSubmit(
-          handleCreateBook as SubmitHandler<BookFormInput>
-        )}
+        onSubmit={handleSubmit(onSubmit as SubmitHandler<BookFormInput>)}
         className="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto space-y-6"
       >
         {/* Título */}
@@ -82,6 +121,27 @@ export function AdminBookFormPage() {
           <input id="title" {...register("title")} className={inputClasses} />
           {errors.title && (
             <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>
+          )}
+        </div>
+
+        {/* Sinopse */}
+        <div>
+          <label
+            htmlFor="synopsis"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Sinopse
+          </label>
+          <textarea
+            id="synopsis"
+            {...register("synopsis")}
+            className={inputClasses}
+            rows={4}
+          />
+          {errors.synopsis && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.synopsis.message}
+            </p>
           )}
         </div>
 
@@ -112,7 +172,7 @@ export function AdminBookFormPage() {
           )}
         </div>
 
-        {/* 2. ADIÇÃO DO CAMPO DE CATEGORIAS */}
+        {/* Categorias */}
         <div>
           <label
             htmlFor="categoryIds"
@@ -139,8 +199,75 @@ export function AdminBookFormPage() {
           )}
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Ano de Publicação */}
+          <div>
+            <label
+              htmlFor="publicationYear"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Ano de Publicação
+            </label>
+            <input
+              id="publicationYear"
+              type="number"
+              {...register("publicationYear")}
+              className={inputClasses}
+            />
+            {errors.publicationYear && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.publicationYear.message}
+              </p>
+            )}
+          </div>
+          {/* Número de Páginas */}
+          <div>
+            <label
+              htmlFor="pageCount"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nº de Páginas
+            </label>
+            <input
+              id="pageCount"
+              type="number"
+              {...register("pageCount")}
+              className={inputClasses}
+            />
+            {errors.pageCount && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.pageCount.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* URL da Capa */}
+        <div>
+          <label
+            htmlFor="coverUrl"
+            className="block text-sm font-medium text-gray-700"
+          >
+            URL da Capa
+          </label>
+          <input
+            id="coverUrl"
+            {...register("coverUrl")}
+            className={inputClasses}
+          />
+          {errors.coverUrl && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.coverUrl.message}
+            </p>
+          )}
+        </div>
+
         <button type="submit" disabled={isPending} className={buttonClasses}>
-          {isPending ? "Salvando..." : "Salvar Livro"}
+          {isPending
+            ? "Salvando..."
+            : isEditMode
+            ? "Salvar Alterações"
+            : "Salvar Livro"}
         </button>
       </form>
     </div>
