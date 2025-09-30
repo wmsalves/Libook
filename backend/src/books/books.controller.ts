@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 
 @Controller('books')
@@ -6,8 +6,8 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  findAll() {
-    return this.booksService.findAll();
+  findAll(@Query('sortBy') sortBy?: string) {
+    return this.booksService.findAll(sortBy);
   }
 
   @Get(':id')

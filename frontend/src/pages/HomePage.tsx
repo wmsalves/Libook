@@ -1,17 +1,19 @@
 import { useBooks } from "../services/books";
 import { BookCard } from "../components/BookCard";
-import { StatCard } from "../components/StatCard"; // Importa o novo componente
+import { StatCard } from "../components/StatCard";
 import {
   MagnifyingGlassIcon,
   BookOpenIcon,
   UsersIcon,
   StarIcon,
   ArrowTrendingUpIcon,
-} from "@heroicons/react/24/outline"; // Importa todos os ícones necessários
+} from "@heroicons/react/24/outline";
 import { FilterBar } from "../components/FilterBar";
+import { useState } from "react";
 
 export function HomePage() {
-  const { data: books, isLoading, isError } = useBooks();
+  const [sortBy, setSortBy] = useState("relevance");
+  const { data: books, isLoading, isError } = useBooks(sortBy);
 
   function renderContent() {
     if (isLoading) {
@@ -106,7 +108,12 @@ export function HomePage() {
 
       {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
       <section className="pb-16 sm:pb-20">
-        <FilterBar bookCount={books?.length || 0} />
+        <FilterBar
+          bookCount={books?.length || 0}
+          activeSort={sortBy}
+          setActiveSort={setSortBy}
+        />
+
         {renderContent()}
       </section>
     </div>

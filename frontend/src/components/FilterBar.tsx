@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FunnelIcon } from "@heroicons/react/24/outline";
 
 const sortOptions = [
@@ -10,11 +9,15 @@ const sortOptions = [
 
 interface FilterBarProps {
   bookCount: number;
+  activeSort: string;
+  setActiveSort: (id: string) => void;
 }
 
-export function FilterBar({ bookCount }: FilterBarProps) {
-  const [activeSort, setActiveSort] = useState("relevance");
-
+export function FilterBar({
+  bookCount,
+  activeSort,
+  setActiveSort,
+}: FilterBarProps) {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between mb-8">
       {/* Lado Esquerdo: Filtros e Contagem */}

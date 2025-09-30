@@ -14,16 +14,18 @@ interface CreateReviewPayload {
 }
 
 // Função que busca os livros na API
-async function fetchBooks(): Promise<Book[]> {
-  const { data } = await apiClient.get("/books");
+async function fetchBooks(sortBy: string): Promise<Book[]> {
+  const { data } = await apiClient.get("/books", {
+    params: { sortBy },
+  });
   return data;
 }
 
 // Hook customizado que usa o React Query
-export function useBooks() {
+export function useBooks(sortBy: string) {
   return useQuery({
-    queryKey: ["books"],
-    queryFn: fetchBooks,
+    queryKey: ["books", sortBy],
+    queryFn: () => fetchBooks(sortBy),
   });
 }
 
