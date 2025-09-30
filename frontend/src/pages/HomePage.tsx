@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useBooks } from "../services/books";
+import { useBooks, useSearchBooks } from "../services/books";
 import { BookCard } from "../components/BookCard";
 import { StatCard } from "../components/StatCard";
 import { FilterBar } from "../components/FilterBar";
 import { Pagination } from "../components/Pagination";
+import { useDebounce } from "../hooks/useDebounce";
 import {
   MagnifyingGlassIcon,
   BookOpenIcon,
@@ -11,46 +12,61 @@ import {
   StarIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
+import type { Book } from "../types";
 
 export function HomePage() {
   const [sortBy, setSortBy] = useState("relevance");
-  const [page, setPage] = useState(1); // Estado para controlar a página atual
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // O hook agora recebe um objeto com 'sortBy' e 'page'
-  const {
-    data: paginatedBooks,
-    isLoading,
-    isError,
-  } = useBooks({ sortBy, page });
+  const { data: paginatedBooks, isLoading: isLoadingBooks } = useBooks({
+    sortBy,
+    page,
+  });
+  const { data: searchResults, isLoading: isLoadingSearch } =
+    useSearchBooks(debouncedSearchTerm);
+
+  const isLoading = isLoadingBooks || isLoadingSearch;
+  const isSearchActive = debouncedSearchTerm.length > 1;
 
   function renderContent() {
+    if (isLoading && isSearchActive) {
+      return <p className="text-center text-gray-500 py-10">Buscando...</p>;
+    }
     if (isLoading) {
-      return (
-        <p className="text-center text-gray-500 py-10">Carregando livros...</p>
-      );
+      return <p className="text-center text-gray-500 py-10">Carregando...</p>;
     }
 
-    if (isError) {
-      return (
-        <p className="text-center text-red-500 py-10">
-          Ocorreu um erro ao buscar os livros.
-        </p>
-      );
-    }
+    let booksToDisplay: Book[] | undefined = isSearchActive
+      ? searchResults?.hits
+      : paginatedBooks?.data;
 
-    // Verifica se existem dados de livros dentro do objeto de paginação
-    if (!paginatedBooks || paginatedBooks.data.length === 0) {
+    if (!booksToDisplay || booksToDisplay.length === 0) {
       return (
         <p className="text-center text-gray-500 py-10">
-          Nenhum livro encontrado no catálogo.
+          Nenhum livro encontrado.
         </p>
       );
     }
 
-    // Mapeia sobre 'paginatedBooks.data' em vez de 'books'
+    // Se for uma busca, transforma a estrutura dos dados para corresponder ao que o BookCard espera.
+    if (isSearchActive) {
+      booksToDisplay = booksToDisplay.map((book) => ({
+        ...book,
+        // Recria a estrutura aninhada que o BookCard espera
+        authors: (book.authors as unknown as string[]).map((name) => ({
+          author: { name, id: "" },
+        })),
+        categories: (book.categories as unknown as string[]).map((name) => ({
+          category: { name, id: "" },
+        })),
+      }));
+    }
+
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {paginatedBooks.data.map((book) => (
+        {booksToDisplay.map((book) => (
           <BookCard key={book.id} book={book} />
         ))}
       </div>
@@ -75,10 +91,10 @@ export function HomePage() {
             </div>
             <input
               type="search"
-              name="search"
-              id="search"
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-full leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Buscar livros, autores, gêneros..."
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-full leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -119,20 +135,27 @@ export function HomePage() {
       {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
       <section className="pb-16 sm:pb-20">
         <h2 className="text-3xl font-bold text-brand-dark mb-8">
-          Navegar pelo Catálogo
+          {isSearchActive
+            ? `Resultados para "${debouncedSearchTerm}"`
+            : "Navegar pelo Catálogo"}
         </h2>
-        <FilterBar
-          bookCount={paginatedBooks?.meta.totalItems || 0}
-          activeSort={sortBy}
-          setActiveSort={setSortBy}
-        />
-        {renderContent()}
 
-        {/* Componente de Paginação */}
-        {paginatedBooks && paginatedBooks.meta.totalPages > 1 && (
-          <div className="mt-8">
-            <Pagination meta={paginatedBooks.meta} onPageChange={setPage} />
-          </div>
+        {!isSearchActive ? (
+          <>
+            <FilterBar
+              bookCount={paginatedBooks?.meta.totalItems || 0}
+              activeSort={sortBy}
+              setActiveSort={setSortBy}
+            />
+            {renderContent()}
+            {paginatedBooks && paginatedBooks.meta.totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination meta={paginatedBooks.meta} onPageChange={setPage} />
+              </div>
+            )}
+          </>
+        ) : (
+          renderContent()
         )}
       </section>
     </div>

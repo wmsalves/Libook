@@ -30,7 +30,11 @@ interface CreateBookPayload {
 
 type UpdateBookPayload = Partial<CreateBookPayload>;
 
-// --- FUNÇÕES E HOOKS ---
+interface SearchResult {
+  hits: Book[];
+}
+
+// --- LIVROS E CATÁLOGO PÚBLICO ---
 
 async function fetchBooks(options: {
   sortBy: string;
@@ -48,6 +52,9 @@ export function useBooks(options: { sortBy: string; page: number }) {
   return useQuery({
     queryKey: ["books", { sortBy, page }],
     queryFn: () => fetchBooks({ sortBy, page }),
+    // Mantém os dados da página anterior visíveis enquanto a nova carrega
+    staleTime: 0,
+    placeholderData: (prevData) => prevData,
   });
 }
 
@@ -60,10 +67,28 @@ export function useBook(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["book", id],
     queryFn: () => fetchBookById(id),
-    // Usa a opção 'enabled' se fornecida, senão o padrão é verificar se o id existe
     enabled: options?.enabled ?? !!id,
   });
 }
+
+// --- BUSCA ---
+
+async function searchBooks(query: string): Promise<SearchResult> {
+  const { data } = await apiClient.get("/search", {
+    params: { q: query },
+  });
+  return data;
+}
+
+export function useSearchBooks(query: string) {
+  return useQuery({
+    queryKey: ["search-books", query],
+    queryFn: () => searchBooks(query),
+    enabled: !!query && query.length > 1,
+  });
+}
+
+// --- AVALIAÇÕES (REVIEWS) ---
 
 async function fetchReviewsByBookId(bookId: string): Promise<Review[]> {
   const { data } = await apiClient.get(`/books/${bookId}/reviews`);
@@ -96,6 +121,8 @@ export function useCreateReview(bookId: string) {
   });
 }
 
+// --- LISTAS DE LEITURA (STATUS) ---
+
 async function fetchUserStatuses(): Promise<UserStatuses> {
   const { data } = await apiClient.get("/reading-lists/statuses");
   return data;
@@ -127,9 +154,13 @@ export function useSetBookStatus() {
     }) => setBookStatus(bookId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-statuses"] });
+      // Também invalida a "Minha Biblioteca" para refletir a mudança
+      queryClient.invalidateQueries({ queryKey: ["my-library"] });
     },
   });
 }
+
+// --- MINHA BIBLIOTECA ---
 
 async function fetchMyLibrary(): Promise<LibraryBook[]> {
   const { data } = await apiClient.get("/reading-lists/my-library");
@@ -142,6 +173,8 @@ export function useMyLibrary() {
     queryFn: fetchMyLibrary,
   });
 }
+
+// --- PAINEL DE ADMIN ---
 
 async function fetchAuthors(): Promise<Author[]> {
   const { data } = await apiClient.get("/authors");
@@ -197,8 +230,6 @@ export function useUpdateBook() {
     },
   });
 }
-
-// --- HOOK PARA APAGAR LIVROS ---
 
 async function deleteBook(bookId: string): Promise<void> {
   await apiClient.delete(`/books/${bookId}`);
