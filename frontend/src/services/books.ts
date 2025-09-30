@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/axios";
 import type {
+  Author,
   Book,
+  Category,
   LibraryBook,
   ReadingStatus,
   Review,
@@ -133,5 +135,52 @@ export function useMyLibrary() {
   return useQuery({
     queryKey: ["my-library"],
     queryFn: fetchMyLibrary,
+  });
+}
+
+// --- HOOKS PARA AUTORES E CATEGORIAS ---
+async function fetchAuthors(): Promise<Author[]> {
+  const { data } = await apiClient.get("/authors");
+  return data;
+}
+
+export function useAuthors() {
+  return useQuery({ queryKey: ["authors"], queryFn: fetchAuthors });
+}
+
+async function fetchCategories(): Promise<Category[]> {
+  const { data } = await apiClient.get("/categories");
+  return data;
+}
+
+export function useCategories() {
+  return useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
+}
+
+// --- HOOK PARA CRIAR LIVROS ---
+// O DTO precisa corresponder ao do backend
+interface CreateBookPayload {
+  title: string;
+  synopsis?: string;
+  publicationYear?: number;
+  pageCount?: number;
+  coverUrl?: string;
+  authorIds: string[];
+  categoryIds?: string[];
+}
+
+async function createBook(payload: CreateBookPayload): Promise<Book> {
+  const { data } = await apiClient.post("/books", payload);
+  return data;
+}
+
+export function useCreateBook() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createBook,
+    onSuccess: () => {
+      // Invalida a lista de livros para que ela seja atualizada na próxima vez que for vista
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
   });
 }

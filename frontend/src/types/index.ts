@@ -32,3 +32,12 @@ export interface LibraryBook extends Book {
     status: ReadingStatus;
   }[];
 }
+
+export interface Author {
+  id: string;
+  name: string;
+}
+export interface Category {
+  id: string;
+  name: string;
+}

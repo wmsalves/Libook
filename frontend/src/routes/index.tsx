@@ -7,6 +7,7 @@ import { MyLibraryPage } from "../pages/MyLibraryPage";
 import { MainLayout } from "../components/layout/MainLayout";
 import { AdminRoute } from "./AdminRoute";
 import { AdminBooksListPage } from "../pages/admin/AdminBooksListPage";
+import { AdminBookFormPage } from "../pages/admin/AdminBookFormPage";
 
 export function AppRoutes() {
   return (
@@ -27,7 +28,7 @@ export function AppRoutes() {
         {/* Rotas Privadas para Administradores */}
         <Route path="/admin" element={<AdminRoute />}>
           <Route path="books" element={<AdminBooksListPage />} />
-          {/* Outras rotas de admin (criar, editar) virão aqui */}
+          <Route path="books/new" element={<AdminBookFormPage />} />{" "}
         </Route>
       </Route>
     </Routes>
