@@ -1,6 +1,13 @@
 import { useBooks } from "../services/books";
 import { BookCard } from "../components/BookCard";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"; // Importa o ícone de busca
+import { StatCard } from "../components/StatCard"; // Importa o novo componente
+import {
+  MagnifyingGlassIcon,
+  BookOpenIcon,
+  UsersIcon,
+  StarIcon,
+  ArrowTrendingUpIcon,
+} from "@heroicons/react/24/outline"; // Importa todos os ícones necessários
 
 export function HomePage() {
   const { data: books, isLoading, isError } = useBooks();
@@ -66,6 +73,37 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* --- SEÇÃO DE MÉTRICAS --- */}
+      <section className="pb-16 sm:pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            icon={<BookOpenIcon className="h-8 w-8" />}
+            value="12.847"
+            title="Livros no Catálogo"
+            description="Cresceu 15% este mês"
+          />
+          <StatCard
+            icon={<UsersIcon className="h-8 w-8" />}
+            value="2.341"
+            title="Leitores Ativos"
+            description="Usuários cadastrados"
+          />
+          <StatCard
+            icon={<StarIcon className="h-8 w-8" />}
+            value="45.2K"
+            title="Avaliações"
+            description="Média de 4.3 estrelas"
+          />
+          <StatCard
+            icon={<ArrowTrendingUpIcon className="h-8 w-8" />}
+            value="1.823"
+            title="Leituras Ativas"
+            description="Livros sendo lidos agora"
+          />
+        </div>
+      </section>
+
+      {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
       <section className="pb-16 sm:pb-20">{renderContent()}</section>
     </div>
   );
