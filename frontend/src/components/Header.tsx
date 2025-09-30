@@ -3,7 +3,7 @@ import {
   MagnifyingGlassIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "./../hooks/useAuth";
 
 export function Header() {
   const { isAuthenticated, logout, user } = useAuth();
@@ -33,7 +33,6 @@ export function Header() {
             </NavLink>
           </li>
 
-          {/* O link "Minhas Listas" só aparece se o usuário estiver autenticado */}
           {isAuthenticated && (
             <li>
               <NavLink
@@ -69,6 +68,17 @@ export function Header() {
                 <p className="px-4 py-2 text-sm text-gray-700 font-medium">
                   Olá, {user?.name}
                 </p>
+
+                {/* Link para o Painel de Admin, visível apenas para admins */}
+                {user?.role === "ADMIN" && (
+                  <Link
+                    to="/admin/books"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold"
+                  >
+                    Painel de Admin
+                  </Link>
+                )}
+
                 <a
                   href="#"
                   onClick={(e) => {

@@ -5,6 +5,8 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { BookDetailPage } from "../pages/BookDetailPage";
 import { MyLibraryPage } from "../pages/MyLibraryPage";
 import { MainLayout } from "../components/layout/MainLayout";
+import { AdminRoute } from "./AdminRoute";
+import { AdminBooksListPage } from "../pages/admin/AdminBooksListPage";
 
 export function AppRoutes() {
   return (
@@ -20,6 +22,12 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="/my-library" element={<MyLibraryPage />} />
           {/* Todas as outras rotas que exigem login virão aqui */}
+        </Route>
+
+        {/* Rotas Privadas para Administradores */}
+        <Route path="/admin" element={<AdminRoute />}>
+          <Route path="books" element={<AdminBooksListPage />} />
+          {/* Outras rotas de admin (criar, editar) virão aqui */}
         </Route>
       </Route>
     </Routes>
