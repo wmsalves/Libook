@@ -1,67 +1,69 @@
 <div align="center">
 
-# 📚 Libook - Online Library Platform  
----
+# 📚 Libook - Online Library Platform
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+A modern and complete library platform built with NestJS, React, PostgreSQL, and MeiliSearch.
+
 </div>
 
-Libook is an online library platform designed to help users discover, organize, and review books.  
-This repository contains the complete source code for the application, including the backend built with **NestJS** and the frontend in **React**.  
+**Libook** is an online library platform designed to help users discover, organize, and review books. This repository contains the complete source code for the application, including a robust backend with NestJS and a reactive frontend with React.
 
 ---
 
-### 🚧 Project Status 🚧
+### ✨ Implemented Features
 
-**Project in Development.** Features are being built step-by-step.
+The project was developed with a wide range of features covering the complete user and administrator journey:
 
----
+#### User
+-   ✅ **Full Authentication:** Signup, JWT Login, and session persistence.
+-   ✅ **Public Catalog:** Visitors can explore the book catalog.
+-   ✅ **Real-time Search:** A debounced search bar integrated with MeiliSearch for instant and relevant results.
+-   ✅ **Pagination & Sorting:** Navigate through catalog pages and sort results by relevance, date, or title.
+-   ✅ **Detail Page:** A complete view of book information, including synopsis, authors, and categories.
+-   ✅ **Ratings & Reviews:** Authenticated users can submit ratings (score + comment).
+-   ✅ **Personal Reading Lists:** "Want to Read", "Reading", and "Read" functionality for each book.
+-   ✅ **"My Library" Page:** A personal area to view all books organized by their reading status.
 
-### ✨ Features
-
-Here is a summary of what has been implemented and what is planned:
-
--   [x] **Backend API (NestJS):** Initial server structure.
--   [x] **Database with Prisma:** Connection and ORM setup with PostgreSQL.
--   [x] **User Registration:** Secure endpoint for new user registration with password hashing (Argon2).
--   [x] **User Login:** Authentication and JWT token generation.
--   [x] **Frontend (React):** Initial setup with Vite and TypeScript.
--   [x] **Book CRUD:** Full management of the book collection.
--   [x] **Advanced Search:** Integration with MeiliSearch or similar.
--   [x] **Personal Lists:** "Want to Read", "Reading", "Read" functionality.
+#### Administration
+-   ✅ **Secure Admin Panel:** Access restricted to users with the `ADMIN` role.
+-   ✅ **Complete Book CRUD:** Administrators can Create, Read, Update, and Delete books from the catalog.
+-   ✅ **Automatic Sync:** All changes to the catalog are synchronized in real-time with the search engine (MeiliSearch).
 
 ---
 
 ### 🚀 Tech Stack
 
-This project is built with a modern and robust stack, focused on performance and scalability.
-
-| Layer          | Technology                                   |
-| :------------- | :------------------------------------------- |
-| **Backend** | Node.js, NestJS, TypeScript                  |
-| **ORM** | Prisma                                       |
-| **Database** | PostgreSQL                                   |
-| **Authentication**| JWT, Argon2 (for password hashing)         |
-| **Frontend** | React, TypeScript, Vite  |
-| **Versioning** | Git & GitHub                                 |
+| Category      | Technology / Library                                          |
+| :------------- | :--------------------------------------------------------------- |
+| **Backend** | Node.js, **NestJS**, TypeScript, Zod (validation)                 |
+| **Frontend** | **React 18**, TypeScript, Vite, **Tailwind CSS** |
+| **Database** | **PostgreSQL**, **Prisma ORM** |
+| **Search** | **MeiliSearch** |
+| **Authentication** | JWT (Access Token), Passport.js, Argon2 (hashing)                |
+| **State (Frontend)** | **React Query** (server state), React Context (UI state) |
+| **Forms** | **React Hook Form** + Zod                                        |
+| **Routing** | React Router                                                     |
+| **HTTP Client** | Axios                                                            |
 
 ---
 
 ### 📋 Prerequisites
 
-Before you begin, you will need to have the following tools installed on your machine:
-* [Node.js (v20.x or higher)](https://nodejs.org/en/)
-* [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
-* [Git](https://git-scm.com/)
-* A running **PostgreSQL** instance, either locally or in the cloud.
+-   [Node.js (v20.x or higher)](https://nodejs.org/en/)
+-   [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+-   [Git](https://git-scm.com/)
+-   A running **PostgreSQL** instance.
+-   A running **MeiliSearch** instance.
 
 ---
 
-### ⚙️ How to Run the Project
+### ⚙️ Getting Started
 
-Follow the steps below to run the application in your development environment.
-
-1.  **Clone the repository:**
+1. **Clone the Repository**
     ```bash
-    git clone [https://github.com/YOUR-USERNAME/libook.git](https://github.com/YOUR-USERNAME/libook.git)
+    git clone [https://github.com/wmsalves/libook.git](https://github.com/wmsalves/libook.git)
     cd libook
     ```
 
@@ -79,20 +81,32 @@ Follow the steps below to run the application in your development environment.
     * Open the `.env` file and fill in the `DATABASE_URL` variable with your PostgreSQL connection string.
     ```env
     # .env
-    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+    DATABASE_URL: Your PostgreSQL connection string.
+    JWT_SECRET: A strong, random secret.
+    GOOGLE_BOOKS_API_KEY: Your Google Books API key (required to populate the database).
+    MEILISEARCH_HOST: Usually http://localhost:7700.
+    MEILISEARCH_API_KEY: Your MeiliSearch Master Key (if any).
     ```
 
 4.  **Run the Database Migrations:**
     This command will create all the necessary tables in your database.
     ```bash
+    # Apply migrations to create the database tables
     npx prisma migrate dev
+
+    # (Optional) Add base user data
+    npm run prisma:seed
+
+    # POPULATE THE DATABASE WITH REAL BOOKS (IMPORTANT)
+    npm run import:books
+
     ```
 
 5.  **Start the Backend Server:**
     ```bash
     npm run start:dev
     ```
-    The server will be running at `http://localhost:3000`.
+    After starting the server, access http://localhost:3000/search/index once in your browser to trigger the initial indexing of books in MeiliSearch.
 
 6.  **Set up and Start the Frontend (when available):**
     ```bash
@@ -101,7 +115,10 @@ Follow the steps below to run the application in your development environment.
 
     # Install dependencies
     npm install
-
+    
+    # Create and configure the .env file
+    cp .env.example .env
+    
     # Start the development server
     npm run dev
     ```
@@ -112,11 +129,17 @@ Follow the steps below to run the application in your development environment.
 
 Inside the `backend/` folder, you can run several scripts:
 
--   `npm run start:dev`: Starts the server in development mode with hot-reload.
--   `npm run build`: Compiles the TypeScript code to JavaScript.
--   `npm run lint`: Runs the linter to check code quality.
--   `npx prisma studio`: Opens a visual interface to manage your database.
+-    `npm run start:dev: Starts the server in development mode.`
+-    `npx prisma migrate dev: Applies database migrations.`
+-    `npm run prisma:seed: Populates the database with base users.`
+-    `npm run import:books: Imports books from the Google Books API.`
+-    `npx prisma studio: Opens the Prisma UI to view the database.`
 
+Inside the `frontend/` folder, you can run several scripts:
+
+-    `npm run dev: Starts the Vite development server.`
+-    `npm run build: Builds the application for production.`
+-    `npm run lint: Runs the linter.`
 ---
 
 ### 👤 Author
