@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const loginFormSchema = z.object({
@@ -13,6 +13,9 @@ const loginFormSchema = z.object({
 type LoginFormData = z.infer<typeof loginFormSchema>;
 
 export function LoginPage() {
+  const location = useLocation();
+  const successMessage = location.state?.message;
+
   const [loginError, setLoginError] = useState<string | null>(null);
   const {
     register,
@@ -39,6 +42,13 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        {/* Bloco para exibir a mensagem de sucesso após o cadastro */}
+        {successMessage && (
+          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-sm text-center">
+            {successMessage}
+          </div>
+        )}
+
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
           Login no Libook
         </h1>
@@ -96,6 +106,17 @@ export function LoginPage() {
             {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        {/* Link para a página de cadastro */}
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Não tem uma conta?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-indigo-600 hover:text-indigo-500"
+          >
+            Cadastre-se
+          </Link>
+        </p>
       </div>
     </div>
   );

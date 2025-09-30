@@ -8,6 +8,7 @@ import { MainLayout } from "../components/layout/MainLayout";
 import { AdminRoute } from "./AdminRoute";
 import { AdminBooksListPage } from "../pages/admin/AdminBooksListPage";
 import { AdminBookFormPage } from "../pages/admin/AdminBookFormPage";
+import { RegisterPage } from "../pages/RegisterPage";
 
 export function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ export function AppRoutes() {
         {/* Rotas Públicas */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/books/:id" element={<BookDetailPage />} />
 
         {/* Rotas Privadas aninhadas dentro do ProtectedRoute */}

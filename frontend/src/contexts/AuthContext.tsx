@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  signUp: (payload: SignUpPayload) => Promise<void>;
   userStatuses: UserStatuses;
 }
 
@@ -18,7 +19,11 @@ interface User {
   email: string;
   role: "USER" | "ADMIN";
 }
-
+interface SignUpPayload {
+  name: string;
+  email: string;
+  password: string;
+}
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -81,6 +86,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function signUp(payload: SignUpPayload) {
+    try {
+      await apiClient.post("/auth/register", payload);
+    } catch (error) {
+      console.error("Falha no cadastro:", error);
+      // Lança o erro para que o componente de cadastro possa tratá-lo
+      throw error;
+    }
+  }
   // <<-- FUNÇÃO DE LOGOUT -->>
   function logout() {
     setUser(null);
@@ -92,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, logout, userStatuses }}
+      value={{ isAuthenticated, user, login, logout, signUp, userStatuses }}
     >
       {children}
     </AuthContext.Provider>
