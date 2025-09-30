@@ -22,11 +22,11 @@ Here is a summary of what has been implemented and what is planned:
 -   [x] **Backend API (NestJS):** Initial server structure.
 -   [x] **Database with Prisma:** Connection and ORM setup with PostgreSQL.
 -   [x] **User Registration:** Secure endpoint for new user registration with password hashing (Argon2).
--   [ ] **User Login:** Authentication and JWT token generation.
--   [ ] **Frontend (React):** Initial setup with Vite and TypeScript.
--   [ ] **Book CRUD:** Full management of the book collection.
--   [ ] **Advanced Search:** Integration with MeiliSearch or similar.
--   [ ] **Personal Lists:** "Want to Read", "Reading", "Read" functionality.
+-   [x] **User Login:** Authentication and JWT token generation.
+-   [x] **Frontend (React):** Initial setup with Vite and TypeScript.
+-   [x] **Book CRUD:** Full management of the book collection.
+-   [x] **Advanced Search:** Integration with MeiliSearch or similar.
+-   [x] **Personal Lists:** "Want to Read", "Reading", "Read" functionality.
 
 ---
 
@@ -40,7 +40,7 @@ This project is built with a modern and robust stack, focused on performance and
 | **ORM** | Prisma                                       |
 | **Database** | PostgreSQL                                   |
 | **Authentication**| JWT, Argon2 (for password hashing)         |
-| **Frontend** | React, TypeScript, Vite (to be implemented)  |
+| **Frontend** | React, TypeScript, Vite  |
 | **Versioning** | Git & GitHub                                 |
 
 ---
