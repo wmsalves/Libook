@@ -40,7 +40,7 @@ This project is built with a modern and robust stack, focused on performance and
 | **ORM** | Prisma                                       |
 | **Database** | PostgreSQL                                   |
 | **Authentication**| JWT, Argon2 (for password hashing)         |
-| **Frontend** | React, TypeScript, Vite (to be implemented)  |
+| **Frontend** | React, TypeScript, Vite  |
 | **Versioning** | Git & GitHub                                 |
 
 ---
