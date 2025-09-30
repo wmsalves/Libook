@@ -1,9 +1,20 @@
-import { useBooks } from "../../services/books";
+import { useBooks, useDeleteBook } from "../../services/books"; // Importa o hook de deleção
 import { Link } from "react-router-dom";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export function AdminBooksListPage() {
-  const { data: books, isLoading, isError } = useBooks("title_asc"); // Ordena por título
+  const { data: books, isLoading, isError } = useBooks("title_asc");
+  const { mutate: deleteBook } = useDeleteBook();
+
+  function handleDeleteBook(bookId: string, bookTitle: string) {
+    if (
+      window.confirm(
+        `Você tem certeza que deseja apagar o livro "${bookTitle}"?`
+      )
+    ) {
+      deleteBook(bookId);
+    }
+  }
 
   if (isLoading) return <p className="text-center p-8">Carregando livros...</p>;
   if (isError)
@@ -16,7 +27,7 @@ export function AdminBooksListPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-brand-dark">Gerenciar Livros</h1>
         <Link
-          to="/admin/books/new" // Rota para criar novo livro (faremos a seguir)
+          to="/admin/books/new"
           className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
         >
           Novo Livro
@@ -48,11 +59,22 @@ export function AdminBooksListPage() {
                   {book.authors.map((a) => a.author.name).join(", ")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                  <button className="text-indigo-600 hover:text-indigo-900">
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                  <button className="text-red-600 hover:text-red-900">
-                    <TrashIcon className="h-5 w-5" />
+                  {/* Botão de Editar */}
+                  <Link
+                    to={`/admin/books/edit/${book.id}`}
+                    className="text-indigo-600 hover:text-indigo-900"
+                    title="Editar"
+                  >
+                    <PencilIcon className="h-5 w-5 inline-block" />
+                  </Link>
+
+                  {/* Botão de Apagar */}
+                  <button
+                    onClick={() => handleDeleteBook(book.id, book.title)}
+                    className="text-red-600 hover:text-red-900"
+                    title="Apagar"
+                  >
+                    <TrashIcon className="h-5 w-5 inline-block" />
                   </button>
                 </td>
               </tr>

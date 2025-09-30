@@ -191,3 +191,19 @@ export function useUpdateBook() {
     },
   });
 }
+
+// --- HOOK PARA APAGAR LIVROS ---
+
+async function deleteBook(bookId: string): Promise<void> {
+  await apiClient.delete(`/books/${bookId}`);
+}
+
+export function useDeleteBook() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteBook,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+    },
+  });
+}
