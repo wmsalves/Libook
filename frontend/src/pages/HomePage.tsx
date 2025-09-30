@@ -12,7 +12,7 @@ import { FilterBar } from "../components/FilterBar";
 import { useState } from "react";
 
 export function HomePage() {
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy] = useState("relevance");
   const { data: books, isLoading, isError } = useBooks(sortBy);
 
   function renderContent() {
@@ -108,10 +108,15 @@ export function HomePage() {
 
       {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
       <section className="pb-16 sm:pb-20">
+        {/* Título da Seção */}
+        <h2 className="text-3xl font-bold text-brand-dark mb-8">
+          Navegar pelo Catálogo
+        </h2>
+
         <FilterBar
           bookCount={books?.length || 0}
-          activeSort={sortBy}
-          setActiveSort={setSortBy}
+          activeSort={"relevance"}
+          setActiveSort={() => {}}
         />
 
         {renderContent()}

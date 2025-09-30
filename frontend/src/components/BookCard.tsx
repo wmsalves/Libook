@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Book } from "../types";
 import { BookStatusSelector } from "./BookStatusSelector";
 import { useAuth } from "../hooks/useAuth";
+import { BookOpenIcon } from "@heroicons/react/24/solid";
 
 interface BookCardProps {
   book: Book;
@@ -12,34 +13,31 @@ export function BookCard({ book }: BookCardProps) {
   const authorNames = book.authors.map((a) => a.author.name).join(", ");
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden transition-shadow duration-300 hover:shadow-xl">
-      <Link to={`/books/${book.id}`} className="group block flex-grow">
-        <div className="relative">
+    <div className="flex flex-col h-full bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+      <Link to={`/books/${book.id}`} className="group block relative flex-grow">
+        {book.coverUrl ? (
           <img
-            src={book.coverUrl || "https://via.placeholder.com/400x580"}
+            src={book.coverUrl}
             alt={`Capa do livro ${book.title}`}
-            className="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover"
           />
-        </div>
-        <div className="p-4">
-          <h3
-            className="text-lg font-bold text-gray-800 truncate"
-            title={book.title}
-          >
-            {book.title}
-          </h3>
-          <p
-            className="mt-1 text-sm text-gray-600 truncate"
-            title={authorNames}
-          >
-            {authorNames}
-          </p>
+        ) : (
+          // Placeholder para livros sem capa
+          <div className="w-full h-full bg-brand-light flex items-center justify-center">
+            <BookOpenIcon className="h-16 w-16 text-gray-300" />
+          </div>
+        )}
+
+        {/* Sobreposição que aparece no hover */}
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex flex-col justify-end p-4 text-white opacity-0 group-hover:opacity-100">
+          <h3 className="font-bold text-lg drop-shadow-md">{book.title}</h3>
+          <p className="text-sm drop-shadow-md">{authorNames}</p>
         </div>
       </Link>
 
-      {/* 3. Renderize o seletor de status APENAS se o usuário estiver autenticado */}
+      {/* Seletor de Status */}
       {isAuthenticated && (
-        <div className="p-4 pt-0">
+        <div className="p-2 border-t border-gray-100">
           <BookStatusSelector bookId={book.id} />
         </div>
       )}
