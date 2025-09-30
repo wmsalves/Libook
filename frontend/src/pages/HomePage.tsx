@@ -8,6 +8,7 @@ import {
   StarIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline"; // Importa todos os ícones necessários
+import { FilterBar } from "../components/FilterBar";
 
 export function HomePage() {
   const { data: books, isLoading, isError } = useBooks();
@@ -104,7 +105,10 @@ export function HomePage() {
       </section>
 
       {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
-      <section className="pb-16 sm:pb-20">{renderContent()}</section>
+      <section className="pb-16 sm:pb-20">
+        <FilterBar bookCount={books?.length || 0} />
+        {renderContent()}
+      </section>
     </div>
   );
 }
