@@ -18,7 +18,7 @@ async function main() {
   }
 
   // 2. Define o termo de busca. Você pode mudar isso para buscar o que quiser!
-  const searchQuery = 'design patterns';
+  const searchQuery = 'C#';
   const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=20&key=${apiKey}`;
 
   try {
