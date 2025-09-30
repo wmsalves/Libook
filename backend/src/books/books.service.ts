@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../core/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateBookDto } from 'src/auth/dto/create-book.dto';
-import { UpdateBookDto } from 'src/auth/dto/update-book.dto';
+import { CreateBookDto } from '../auth/dto/create-book.dto';
+import { UpdateBookDto } from '../auth/dto/update-book.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class BooksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private searchService: SearchService,
+  ) {}
 
   async findAll(options: { sortBy?: string; page?: number; limit?: number }) {
     const { sortBy, page = 1, limit = 10 } = options;
@@ -85,7 +89,7 @@ export class BooksService {
   async create(createBookDto: CreateBookDto) {
     const { authorIds, categoryIds, ...bookData } = createBookDto;
 
-    return this.prisma.book.create({
+    const newBook = await this.prisma.book.create({
       data: {
         ...bookData,
         authors: {
@@ -95,19 +99,37 @@ export class BooksService {
           create: categoryIds?.map((id) => ({ category: { connect: { id } } })),
         },
       },
+      include: {
+        authors: { select: { author: { select: { name: true } } } },
+        categories: { select: { category: { select: { name: true } } } },
+      },
     });
+
+    await this.searchService.addBook({
+      ...newBook,
+      authors: newBook.authors.map((a) => a.author.name),
+      categories: newBook.categories.map((c) => c.category.name),
+    });
+
+    return newBook;
   }
 
   async update(id: string, updateBookDto: UpdateBookDto) {
     const { authorIds, categoryIds, ...bookData } = updateBookDto;
 
-    return this.prisma.$transaction(async (tx) => {
+    // Uma única transação para garantir a integridade dos dados
+    const updatedBook = await this.prisma.$transaction(async (tx) => {
+      // Se um novo array de IDs de autores foi enviado, atualiza as relações
       if (authorIds) {
+        // 1. Apaga todas as relações de autor existentes para este livro
         await tx.authorOnBook.deleteMany({ where: { bookId: id } });
+        // 2. Cria as novas relações com base nos IDs fornecidos
         await tx.authorOnBook.createMany({
           data: authorIds.map((authorId) => ({ bookId: id, authorId })),
         });
       }
+
+      // O mesmo processo para as categorias
       if (categoryIds) {
         await tx.categoryOnBook.deleteMany({ where: { bookId: id } });
         await tx.categoryOnBook.createMany({
@@ -115,16 +137,35 @@ export class BooksService {
         });
       }
 
-      const updatedBook = await tx.book.update({
+      // 3. Atualiza os dados principais do livro (título, sinopse, etc.)
+      const book = await tx.book.update({
         where: { id },
         data: bookData,
+        // Inclui as relações atualizadas no objeto retornado
+        include: {
+          authors: { select: { author: { select: { name: true } } } },
+          categories: { select: { category: { select: { name: true } } } },
+        },
       });
 
-      return updatedBook;
+      return book;
     });
+
+    // 4. Após a transação ser bem-sucedida, sincroniza o resultado com o MeiliSearch
+    await this.searchService.updateBook({
+      ...updatedBook,
+      // Formata os dados para o MeiliSearch (um array simples de nomes)
+      authors: updatedBook.authors.map((a) => a.author.name),
+      categories: updatedBook.categories.map((c) => c.category.name),
+    });
+
+    return updatedBook;
   }
 
-  remove(id: string) {
-    return this.prisma.book.delete({ where: { id } });
+  async remove(id: string) {
+    const deletedBook = await this.prisma.book.delete({ where: { id } });
+    await this.searchService.deleteBook(id);
+
+    return deletedBook;
   }
 }

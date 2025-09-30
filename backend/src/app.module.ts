@@ -10,6 +10,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ReadingListsModule } from './reading-lists/reading-lists.module';
 import { AuthorsModule } from './authors/authors.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CategoriesModule } from './categories/categories.module';
     ReadingListsModule,
     AuthorsModule,
     CategoriesModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
