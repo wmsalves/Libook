@@ -8,7 +8,10 @@ import { UpdateBookDto } from 'src/auth/dto/update-book.dto';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(sortBy?: string) {
+  async findAll(options: { sortBy?: string; page?: number; limit?: number }) {
+    const { sortBy, page = 1, limit = 10 } = options;
+    const skip = (page - 1) * limit;
+
     let orderBy: Prisma.BookOrderByWithRelationInput = {};
 
     switch (sortBy) {
@@ -26,13 +29,31 @@ export class BooksService {
         break;
     }
 
-    return this.prisma.book.findMany({
-      orderBy,
-      include: {
-        authors: { select: { author: { select: { name: true } } } },
-        categories: { select: { category: { select: { name: true } } } },
+    const [books, totalItems] = await this.prisma.$transaction([
+      this.prisma.book.findMany({
+        skip,
+        take: limit,
+        orderBy,
+        include: {
+          authors: { select: { author: { select: { name: true } } } },
+          categories: { select: { category: { select: { name: true } } } },
+        },
+      }),
+      this.prisma.book.count(),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: books,
+      meta: {
+        totalItems,
+        itemCount: books.length,
+        itemsPerPage: limit,
+        totalPages,
+        currentPage: page,
       },
-    });
+    };
   }
 
   async findOne(id: string) {

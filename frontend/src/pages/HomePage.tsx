@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { useBooks } from "../services/books";
 import { BookCard } from "../components/BookCard";
 import { StatCard } from "../components/StatCard";
+import { FilterBar } from "../components/FilterBar";
+import { Pagination } from "../components/Pagination";
 import {
   MagnifyingGlassIcon,
   BookOpenIcon,
@@ -8,12 +11,17 @@ import {
   StarIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
-import { FilterBar } from "../components/FilterBar";
-import { useState } from "react";
 
 export function HomePage() {
-  const [sortBy] = useState("relevance");
-  const { data: books, isLoading, isError } = useBooks(sortBy);
+  const [sortBy, setSortBy] = useState("relevance");
+  const [page, setPage] = useState(1); // Estado para controlar a página atual
+
+  // O hook agora recebe um objeto com 'sortBy' e 'page'
+  const {
+    data: paginatedBooks,
+    isLoading,
+    isError,
+  } = useBooks({ sortBy, page });
 
   function renderContent() {
     if (isLoading) {
@@ -30,7 +38,8 @@ export function HomePage() {
       );
     }
 
-    if (!books || books.length === 0) {
+    // Verifica se existem dados de livros dentro do objeto de paginação
+    if (!paginatedBooks || paginatedBooks.data.length === 0) {
       return (
         <p className="text-center text-gray-500 py-10">
           Nenhum livro encontrado no catálogo.
@@ -38,9 +47,10 @@ export function HomePage() {
       );
     }
 
+    // Mapeia sobre 'paginatedBooks.data' em vez de 'books'
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {books.map((book) => (
+        {paginatedBooks.data.map((book) => (
           <BookCard key={book.id} book={book} />
         ))}
       </div>
@@ -58,8 +68,6 @@ export function HomePage() {
           Explore milhares de livros, compartilhe avaliações e organize suas
           listas de leitura. Sua biblioteca pessoal nunca foi tão inteligente.
         </p>
-
-        {/* Barra de Busca */}
         <div className="mt-8 max-w-xl mx-auto">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,9 +89,11 @@ export function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             icon={<BookOpenIcon className="h-8 w-8" />}
-            value="12.847"
+            value={
+              paginatedBooks?.meta.totalItems.toLocaleString("pt-BR") || "0"
+            }
             title="Livros no Catálogo"
-            description="Cresceu 15% este mês"
+            description="Explore nossa coleção"
           />
           <StatCard
             icon={<UsersIcon className="h-8 w-8" />}
@@ -108,18 +118,22 @@ export function HomePage() {
 
       {/* --- SEÇÃO DO CATÁLOGO DE LIVROS --- */}
       <section className="pb-16 sm:pb-20">
-        {/* Título da Seção */}
         <h2 className="text-3xl font-bold text-brand-dark mb-8">
           Navegar pelo Catálogo
         </h2>
-
         <FilterBar
-          bookCount={books?.length || 0}
-          activeSort={"relevance"}
-          setActiveSort={() => {}}
+          bookCount={paginatedBooks?.meta.totalItems || 0}
+          activeSort={sortBy}
+          setActiveSort={setSortBy}
         />
-
         {renderContent()}
+
+        {/* Componente de Paginação */}
+        {paginatedBooks && paginatedBooks.meta.totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination meta={paginatedBooks.meta} onPageChange={setPage} />
+          </div>
+        )}
       </section>
     </div>
   );

@@ -1,9 +1,18 @@
-import { useBooks, useDeleteBook } from "../../services/books"; // Importa o hook de deleção
+import { useState } from "react";
+import { useBooks, useDeleteBook } from "../../services/books";
 import { Link } from "react-router-dom";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Pagination } from "../../components/Pagination";
 
 export function AdminBooksListPage() {
-  const { data: books, isLoading, isError } = useBooks("title_asc");
+  const [page, setPage] = useState(1);
+
+  const {
+    data: paginatedBooks,
+    isLoading,
+    isError,
+  } = useBooks({ sortBy: "title_asc", page });
+
   const { mutate: deleteBook } = useDeleteBook();
 
   function handleDeleteBook(bookId: string, bookTitle: string) {
@@ -50,7 +59,7 @@ export function AdminBooksListPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {books?.map((book) => (
+            {paginatedBooks?.data.map((book) => (
               <tr key={book.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {book.title}
@@ -59,7 +68,6 @@ export function AdminBooksListPage() {
                   {book.authors.map((a) => a.author.name).join(", ")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                  {/* Botão de Editar */}
                   <Link
                     to={`/admin/books/edit/${book.id}`}
                     className="text-indigo-600 hover:text-indigo-900"
@@ -67,8 +75,6 @@ export function AdminBooksListPage() {
                   >
                     <PencilIcon className="h-5 w-5 inline-block" />
                   </Link>
-
-                  {/* Botão de Apagar */}
                   <button
                     onClick={() => handleDeleteBook(book.id, book.title)}
                     className="text-red-600 hover:text-red-900"
@@ -82,6 +88,12 @@ export function AdminBooksListPage() {
           </tbody>
         </table>
       </div>
+
+      {paginatedBooks && paginatedBooks.meta.totalPages > 1 && (
+        <div className="mt-8">
+          <Pagination meta={paginatedBooks.meta} onPageChange={setPage} />
+        </div>
+      )}
     </div>
   );
 }

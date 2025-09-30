@@ -5,6 +5,7 @@ import {
   type Book,
   type Category,
   type LibraryBook,
+  type PaginatedResponse,
   ReadingStatus,
   type Review,
   type UserStatuses,
@@ -31,17 +32,22 @@ type UpdateBookPayload = Partial<CreateBookPayload>;
 
 // --- FUNÇÕES E HOOKS ---
 
-async function fetchBooks(sortBy: string): Promise<Book[]> {
+async function fetchBooks(options: {
+  sortBy: string;
+  page: number;
+}): Promise<PaginatedResponse<Book>> {
+  const { sortBy, page } = options;
   const { data } = await apiClient.get("/books", {
-    params: { sortBy },
+    params: { sortBy, page, limit: 12 },
   });
   return data;
 }
 
-export function useBooks(sortBy: string) {
+export function useBooks(options: { sortBy: string; page: number }) {
+  const { sortBy, page } = options;
   return useQuery({
-    queryKey: ["books", sortBy],
-    queryFn: () => fetchBooks(sortBy),
+    queryKey: ["books", { sortBy, page }],
+    queryFn: () => fetchBooks({ sortBy, page }),
   });
 }
 

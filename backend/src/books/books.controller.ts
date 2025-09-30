@@ -10,6 +10,8 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from '../auth/dto/create-book.dto';
@@ -43,8 +45,13 @@ export class BooksController {
 
   // --- Rotas Públicas ---
   @Get()
-  findAll(@Query('sortBy') sortBy?: string) {
-    return this.booksService.findAll(sortBy);
+  findAll(
+    @Query('sortBy') sortBy?: string,
+    // Define valores padrão e garante que os parâmetros sejam números inteiros
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+  ) {
+    return this.booksService.findAll({ sortBy, page, limit });
   }
 
   @Get(':id')
