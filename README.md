@@ -1,6 +1,11 @@
-# Libook - Online Library Platform
+<div align="center">
 
-Libook is an online library platform designed to help users discover, organize, and review books. This repository contains the complete source code for the application, including the backend built with NestJS and the frontend in React.
+# 📚 Libook - Online Library Platform  
+---
+</div>
+
+Libook is an online library platform designed to help users discover, organize, and review books.  
+This repository contains the complete source code for the application, including the backend built with **NestJS** and the frontend in **React**.  
 
 ---
 
