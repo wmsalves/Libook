@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um email válido." }),
@@ -40,16 +42,15 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        {/* Bloco para exibir a mensagem de sucesso após o cadastro */}
         {successMessage && (
-          <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md text-sm text-center">
+          <div className="mb-4 p-3 bg-secondary-200 text-secondary-900 rounded-md text-sm text-center">
             {successMessage}
           </div>
         )}
 
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h1 className="text-2xl font-bold text-center mb-6 text-text">
           Login no Libook
         </h1>
 
@@ -57,62 +58,52 @@ export function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-text-light"
             >
               Email
             </label>
-            <input
+            <Input
               id="email"
               type="email"
+              placeholder="seu@email.com"
               {...register("email")}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              error={errors.email?.message}
+              autoComplete="email"
             />
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.email.message}
-              </p>
-            )}
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-text-light"
             >
               Senha
             </label>
-            <input
+            <Input
               id="password"
               type="password"
+              placeholder="Sua senha"
               {...register("password")}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              error={errors.password?.message}
+              autoComplete="current-password"
+              size="md"
             />
-            {errors.password && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.password.message}
-              </p>
-            )}
           </div>
 
           {loginError && (
             <p className="text-sm text-red-600 text-center">{loginError}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
-          >
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Entrando..." : "Entrar"}
-          </button>
+          </Button>
         </form>
 
-        {/* Link para a página de cadastro */}
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-sm text-text-400 mt-6">
           Não tem uma conta?{" "}
           <Link
             to="/register"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-primary hover:text-primary-600"
           >
             Cadastre-se
           </Link>

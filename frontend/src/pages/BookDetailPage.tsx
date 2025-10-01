@@ -14,7 +14,7 @@ export function BookDetailPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-500">Carregando detalhes do livro...</p>
+        <p className="text-text-400">Carregando detalhes do livro...</p>
       </div>
     );
   }
@@ -22,7 +22,7 @@ export function BookDetailPage() {
   if (isError || !book) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-500">
+        <p className="text-red-600">
           Erro ao carregar o livro ou livro não encontrado.
         </p>
       </div>
@@ -33,12 +33,14 @@ export function BookDetailPage() {
   const categoryNames = book.categories.map((c) => c.category.name).join(", ");
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+    // o body já tem bg/background e text-base definidos no index.css (v4)
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto max-w-5xl">
         <Link
           to="/"
-          className="inline-flex items-center text-indigo-600 hover:text-indigo-800 transition-colors mb-6"
+          className="inline-flex items-center text-primary hover:text-primary-600 transition-colors mb-6"
         >
+          {/* seta voltar com a cor herdada */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 mr-2"
@@ -64,12 +66,14 @@ export function BookDetailPage() {
             />
           </div>
           <div className="p-6 md:w-2/3">
-            <h1 className="text-3xl font-bold text-gray-800">{book.title}</h1>
-            <p className="mt-2 text-lg text-gray-600 italic">
+            <h1 className="text-3xl font-bold text-text">{book.title}</h1>
+
+            <p className="mt-2 text-lg text-text-light italic">
               por {authorNames}
             </p>
-            <p className="mt-4 text-sm text-gray-500">
-              <strong>Categorias:</strong> {categoryNames}
+
+            <p className="mt-4 text-sm text-text-400">
+              <strong className="text-text">Categorias:</strong> {categoryNames}
             </p>
 
             {isAuthenticated && (
@@ -79,10 +83,10 @@ export function BookDetailPage() {
             )}
 
             <div className="mt-8">
-              <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">
+              <h2 className="text-xl font-semibold text-text border-b border-text-100 pb-2">
                 Sinopse
               </h2>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-4 text-text leading-relaxed">
                 {book.synopsis || "Sinopse não disponível."}
               </p>
             </div>
@@ -94,15 +98,16 @@ export function BookDetailPage() {
           <div className="lg:col-span-2">
             <ReviewsList bookId={bookId} />
           </div>
+
           <div>
             {isAuthenticated ? (
               <ReviewForm bookId={bookId} />
             ) : (
               <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <p className="text-gray-600">
+                <p className="text-text-400">
                   <Link
                     to="/login"
-                    className="text-indigo-600 font-semibold hover:underline"
+                    className="text-primary font-semibold hover:text-primary-600"
                   >
                     Entre
                   </Link>{" "}

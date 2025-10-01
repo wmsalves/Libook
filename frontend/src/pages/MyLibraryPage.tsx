@@ -10,7 +10,7 @@ function Bookshelf({ title, books }: { title: string; books: LibraryBook[] }) {
 
   return (
     <section className="mb-12">
-      <h2 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-6">
+      <h2 className="text-2xl font-bold text-text border-b border-text-100 pb-2 mb-6">
         {title}
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
@@ -27,7 +27,7 @@ export function MyLibraryPage() {
 
   if (isLoading) {
     return (
-      <p className="text-center text-gray-500 mt-8">
+      <p className="text-center text-text-400 mt-8">
         Carregando sua biblioteca...
       </p>
     );
@@ -35,7 +35,7 @@ export function MyLibraryPage() {
 
   if (isError) {
     return (
-      <p className="text-center text-red-500 mt-8">
+      <p className="text-center text-red-600 mt-8">
         Ocorreu um erro ao buscar sua biblioteca.
       </p>
     );
@@ -54,16 +54,14 @@ export function MyLibraryPage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">
-        Minha Biblioteca
-      </h1>
+      <h1 className="text-3xl font-bold text-text mb-8">Minha Biblioteca</h1>
 
       {books.length === 0 ? (
-        <div className="text-center text-gray-500 bg-white p-8 rounded-lg shadow-md">
+        <div className="text-center text-text-400 bg-white p-8 rounded-lg shadow-md">
           <p>Sua biblioteca está vazia.</p>
           <Link
             to="/"
-            className="mt-4 inline-block text-indigo-600 hover:underline"
+            className="mt-4 inline-block text-primary font-medium hover:text-primary-600"
           >
             Explore o catálogo e adicione alguns livros!
           </Link>

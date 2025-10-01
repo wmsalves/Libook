@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
 
 // Schema de validação com confirmação de senha
 const registerFormSchema = z
@@ -20,7 +22,7 @@ const registerFormSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "As senhas não coincidem",
-    path: ["confirmPassword"], // Indica qual campo receberá o erro
+    path: ["confirmPassword"],
   });
 
 type RegisterFormData = z.infer<typeof registerFormSchema>;
@@ -46,12 +48,10 @@ export function RegisterPage() {
         email: data.email,
         password: data.password,
       });
-      // Redireciona para o login com uma mensagem de sucesso (opcional)
       navigate("/login", {
         state: { message: "Conta criada com sucesso! Faça o login." },
       });
     } catch (error: unknown) {
-      // O backend retorna 409 Conflict se o email já existir
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         setRegisterError("Este email já está em uso.");
       } else {
@@ -62,80 +62,95 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    // body já tem bg/text do tema
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <h1 className="text-2xl font-bold text-center mb-6 text-text">
           Criar Conta
         </h1>
 
         <form onSubmit={handleSubmit(handleRegister)} className="space-y-4">
           <div>
-            <label htmlFor="name">Nome</label>
-            <input
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-text-light"
+            >
+              Nome
+            </label>
+            <Input
               id="name"
+              placeholder="Seu nome"
               {...register("name")}
-              className="mt-1 block w-full ..."
+              error={errors.name?.message}
+              autoComplete="name"
             />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-            )}
           </div>
+
           <div>
-            <label htmlFor="email">Email</label>
-            <input
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-text-light"
+            >
+              Email
+            </label>
+            <Input
               id="email"
               type="email"
+              placeholder="voce@email.com"
               {...register("email")}
-              className="mt-1 block w-full ..."
+              error={errors.email?.message}
+              autoComplete="email"
             />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.email.message}
-              </p>
-            )}
           </div>
+
           <div>
-            <label htmlFor="password">Senha</label>
-            <input
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-text-light"
+            >
+              Senha
+            </label>
+            <Input
               id="password"
               type="password"
+              placeholder="Mínimo de 8 caracteres"
               {...register("password")}
-              className="mt-1 block w-full ..."
+              error={errors.password?.message}
+              autoComplete="new-password"
             />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.password.message}
-              </p>
-            )}
           </div>
+
           <div>
-            <label htmlFor="confirmPassword">Confirmar Senha</label>
-            <input
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-text-light"
+            >
+              Confirmar Senha
+            </label>
+            <Input
               id="confirmPassword"
               type="password"
+              placeholder="Repita sua senha"
               {...register("confirmPassword")}
-              className="mt-1 block w-full ..."
+              error={errors.confirmPassword?.message}
+              autoComplete="new-password"
             />
-            {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.confirmPassword.message}
-              </p>
-            )}
           </div>
 
           {registerError && (
             <p className="text-sm text-red-600 text-center">{registerError}</p>
           )}
 
-          <button type="submit" disabled={isSubmitting} className="w-full ...">
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Criando..." : "Criar conta"}
-          </button>
+          </Button>
         </form>
-        <p className="text-center text-sm text-gray-600 mt-6">
+
+        <p className="text-center text-sm text-text-400 mt-6">
           Já tem uma conta?{" "}
           <Link
             to="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-primary hover:text-primary-600"
           >
             Faça o login
           </Link>

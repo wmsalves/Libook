@@ -11,10 +11,13 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-text-100">
       <nav className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold font-serif text-brand-green">
+        <Link
+          to="/"
+          className="text-2xl font-bold font-serif text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm"
+        >
           Libook
         </Link>
 
@@ -24,10 +27,10 @@ export function Header() {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `transition-colors ${
+                `transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm ${
                   isActive
-                    ? "text-brand-green font-semibold"
-                    : "text-brand-dark hover:text-brand-green"
+                    ? "text-primary font-semibold"
+                    : "text-text hover:text-primary"
                 }`
               }
             >
@@ -40,10 +43,10 @@ export function Header() {
               <NavLink
                 to="/my-library"
                 className={({ isActive }) =>
-                  `transition-colors ${
+                  `transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm ${
                     isActive
-                      ? "text-brand-green font-semibold"
-                      : "text-brand-dark hover:text-brand-green"
+                      ? "text-primary font-semibold"
+                      : "text-text hover:text-primary"
                   }`
                 }
               >
@@ -55,7 +58,10 @@ export function Header() {
 
         {/* Ícones e Ações do Usuário (Direita) */}
         <div className="flex items-center space-x-5">
-          <button className="text-brand-dark hover:text-brand-green transition-colors">
+          <button
+            className="text-text hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full p-1"
+            aria-label="Buscar"
+          >
             <MagnifyingGlassIcon className="h-6 w-6" />
           </button>
 
@@ -63,26 +69,33 @@ export function Header() {
             // Menu para usuário LOGADO
             <div className="relative">
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-brand-dark hover:text-brand-green transition-colors"
+                onClick={() => setIsMenuOpen((v) => !v)}
+                className="text-text hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full p-0.5"
+                aria-haspopup="menu"
+                aria-expanded={isMenuOpen}
+                aria-controls="user-menu"
               >
                 <span className="sr-only">Menu do usuário</span>
                 <UserCircleIcon className="h-7 w-7" />
               </button>
 
               <div
-                className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 transition-opacity duration-200 ${
-                  isMenuOpen ? "opacity-100 block" : "opacity-0 hidden"
+                id="user-menu"
+                role="menu"
+                aria-hidden={!isMenuOpen}
+                className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-text-100 transition-opacity duration-200 ${
+                  isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
                 }`}
               >
-                <p className="px-4 py-2 text-sm text-gray-700 font-medium">
+                <p className="px-4 py-2 text-sm text-text-600 font-medium">
                   Olá, {user?.name}
                 </p>
 
                 {user?.role === "ADMIN" && (
                   <Link
                     to="/admin/books"
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-semibold"
+                    className="block w-full text-left px-4 py-2 text-sm text-text hover:bg-secondary-100"
+                    role="menuitem"
                   >
                     Painel de Admin
                   </Link>
@@ -92,9 +105,11 @@ export function Header() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
+                    setIsMenuOpen(false);
                     logout();
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-text hover:bg-secondary-100"
+                  role="menuitem"
                 >
                   Sair
                 </a>
@@ -104,7 +119,7 @@ export function Header() {
             // Botão para usuário DESLOGADO
             <Link
               to="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
               Entrar
             </Link>

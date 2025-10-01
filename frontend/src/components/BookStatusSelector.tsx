@@ -22,7 +22,10 @@ export function BookStatusSelector({ bookId }: BookStatusSelectorProps) {
       value={currentStatus}
       onChange={handleChange}
       disabled={isPending}
-      className="w-full mt-2 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      className="w-full mt-2 px-3 py-2 text-sm rounded-md border border-text-200
+                 bg-white text-text placeholder-text-300
+                 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                 disabled:opacity-60 transition-colors"
     >
       <option value="NONE" disabled>
         Adicionar à lista...

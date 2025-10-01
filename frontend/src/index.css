@@ -1,9 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Merriweather:wght@900&display=swap");
-
 @import "tailwindcss";
 
-@layer base {
-  body {
-    @apply bg-gray-50 text-gray-700 font-sans;
-  }
+@theme {
+  /* Background base */
+  --color-background: #dad7cd;
+
+  /* Primary (fern_green) */
+  --color-primary: #588157;
+  --color-primary-100: #dce7dc;
+  --color-primary-200: #b9cfb9;
+  --color-primary-300: #96b795;
+  --color-primary-400: #739f72;
+  --color-primary-500: #588157;
+  --color-primary-600: #466645;
+  --color-primary-700: #344c34;
+  --color-primary-800: #233323;
+  --color-primary-900: #111911;
+
+  /* Secondary (sage) */
+  --color-secondary: #a3b18a;
+  --color-secondary-100: #edefe8;
+  --color-secondary-200: #dae0d0;
+  --color-secondary-300: #c8d0b9;
+  --color-secondary-400: #b6c1a2;
+  --color-secondary-500: #a3b18a;
+  --color-secondary-600: #859865;
+  --color-secondary-700: #64724c;
+  --color-secondary-800: #434c33;
+  --color-secondary-900: #212619;
+
+  /* Text (brunswick/hunter) */
+  --color-text: #344e41;
+  --color-text-light: #3a5a40;
+  --color-text-100: #d1e0d9;
+  --color-text-200: #a3c2b3;
+  --color-text-300: #75a38c;
+  --color-text-400: #527a66;
+  --color-text-500: #344e41;
+  --color-text-600: #293d33;
+  --color-text-700: #1f2e26;
+  --color-text-800: #141f1a;
+  --color-text-900: #0a0f0d;
+}
+
+body {
+  background-color: #dad7cd;
+  color: #344e41;
+  font-family: "Inter", sans-serif;
 }
