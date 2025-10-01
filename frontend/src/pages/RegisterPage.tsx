@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../hooks/useAuth";
@@ -7,6 +6,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import { AuthLayout } from "../components/layout/AuthLayout";
+import axios from "axios";
 
 // Schema de validação com confirmação de senha
 const registerFormSchema = z
@@ -62,8 +63,7 @@ export function RegisterPage() {
   }
 
   return (
-    // body já tem bg/text do tema
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <AuthLayout>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-text">
           Criar Conta
@@ -81,9 +81,11 @@ export function RegisterPage() {
               id="name"
               placeholder="Seu nome"
               {...register("name")}
-              error={errors.name?.message}
               autoComplete="name"
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
@@ -98,9 +100,13 @@ export function RegisterPage() {
               type="email"
               placeholder="voce@email.com"
               {...register("email")}
-              error={errors.email?.message}
               autoComplete="email"
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -115,9 +121,13 @@ export function RegisterPage() {
               type="password"
               placeholder="Mínimo de 8 caracteres"
               {...register("password")}
-              error={errors.password?.message}
               autoComplete="new-password"
             />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -132,9 +142,13 @@ export function RegisterPage() {
               type="password"
               placeholder="Repita sua senha"
               {...register("confirmPassword")}
-              error={errors.confirmPassword?.message}
               autoComplete="new-password"
             />
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           {registerError && (
@@ -146,7 +160,7 @@ export function RegisterPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-text-400 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Já tem uma conta?{" "}
           <Link
             to="/login"
@@ -156,6 +170,6 @@ export function RegisterPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { AuthLayout } from "../components/layout/AuthLayout";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Por favor, insira um email válido." }),
@@ -17,8 +18,8 @@ type LoginFormData = z.infer<typeof loginFormSchema>;
 export function LoginPage() {
   const location = useLocation();
   const successMessage = location.state?.message;
-
   const [loginError, setLoginError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -42,7 +43,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <AuthLayout>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         {successMessage && (
           <div className="mb-4 p-3 bg-secondary-200 text-secondary-900 rounded-md text-sm text-center">
@@ -62,14 +63,12 @@ export function LoginPage() {
             >
               Email
             </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="seu@email.com"
-              {...register("email")}
-              error={errors.email?.message}
-              autoComplete="email"
-            />
+            <Input id="email" type="email" {...register("email")} />
+            {errors.email && (
+              <p className="mt-2 text-sm text-red-500">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -79,15 +78,12 @@ export function LoginPage() {
             >
               Senha
             </label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Sua senha"
-              {...register("password")}
-              error={errors.password?.message}
-              autoComplete="current-password"
-              size="md"
-            />
+            <Input id="password" type="password" {...register("password")} />
+            {errors.password && (
+              <p className="mt-2 text-sm text-red-500">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {loginError && (
@@ -99,7 +95,7 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-text-400 mt-6">
+        <p className="text-center text-sm text-gray-600 mt-6">
           Não tem uma conta?{" "}
           <Link
             to="/register"
@@ -109,6 +105,6 @@ export function LoginPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
